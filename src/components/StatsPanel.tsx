@@ -26,8 +26,8 @@ function Metric({
           ? "text-late"
           : "text-primary";
   return (
-    <div className="board-panel rounded-xl p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+    <div className="board-panel p-4">
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
         {label}
       </p>
       <p className={`tabular mt-2 text-3xl font-bold lg:text-4xl ${toneClass}`}>{value}</p>
@@ -88,7 +88,7 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="board-panel rounded-xl p-4">
+        <div className="board-panel p-4">
           <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Por farmacia
           </h3>
@@ -111,7 +111,7 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
           </ul>
         </div>
 
-        <div className="board-panel rounded-xl p-4">
+        <div className="board-panel p-4">
           <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Por día
           </h3>

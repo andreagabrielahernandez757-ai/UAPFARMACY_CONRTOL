@@ -37,15 +37,15 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
 
   if (rows.length === 0) {
     return (
-      <div className="board-panel rounded-xl p-10 text-center text-lg uppercase tracking-widest text-muted-foreground">
+      <div className="board-panel rule-top p-10 text-center text-lg font-semibold uppercase tracking-widest text-muted-foreground">
         Sin pacientes en espera
       </div>
     );
   }
 
   return (
-    <div className="board-panel overflow-hidden rounded-xl">
-      <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_12rem] gap-3 border-b border-border bg-secondary/60 px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground lg:grid">
+    <div className="board-panel rule-top overflow-hidden">
+      <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_12rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
         <span>Ticket</span>
         <span>Paciente</span>
         <span>Farmacia</span>
@@ -60,15 +60,15 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
           return (
             <li
               key={d.id}
-              className="flip-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 px-4 py-4 last:border-0 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_12rem]"
+              className="flip-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-4 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_12rem]"
             >
               <span className="tabular shrink-0 text-2xl font-bold text-primary lg:text-3xl">
                 {d.ticket}
               </span>
-              <span className="col-span-2 min-w-0 truncate text-xl font-semibold uppercase lg:col-span-1 lg:text-2xl">
+              <span className="col-span-2 min-w-0 truncate text-lg font-semibold lg:col-span-1 lg:text-xl">
                 {d.patient_name}
               </span>
-              <span className="text-sm font-semibold uppercase tracking-widest text-accent">
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">
                 {PHARMACY_SHORT[d.pharmacy]}
               </span>
               <span className="tabular text-lg text-muted-foreground">

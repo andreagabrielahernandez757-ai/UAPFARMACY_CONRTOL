@@ -55,11 +55,11 @@ export function RegisterForm() {
   return (
     <form
       onSubmit={submit}
-      className="board-panel rounded-xl p-4 sm:p-6"
+      className="board-panel rule-top p-4 sm:p-6"
       aria-label="Registro de paciente"
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:justify-between">
-        <h2 className="truncate text-2xl font-bold uppercase tracking-widest text-primary">
+        <h2 className="truncate text-xl font-bold uppercase tracking-[0.12em] text-primary sm:text-2xl">
           Registro de paciente
         </h2>
         <span className="tabular shrink-0 text-sm text-muted-foreground">
