@@ -74,46 +74,47 @@
 
 
 :root {
-  --radius: 0.5rem;
-  --board: oklch(0.16 0.03 250);
-  --background: oklch(0.13 0.025 250);
-  --foreground: oklch(0.97 0.01 250);
-  --card: oklch(0.19 0.03 252);
-  --card-foreground: oklch(0.97 0.01 250);
-  --popover: oklch(0.19 0.03 252);
-  --popover-foreground: oklch(0.97 0.01 250);
-  --primary: oklch(0.82 0.17 85);
-  --primary-foreground: oklch(0.18 0.03 250);
-  --secondary: oklch(0.26 0.04 252);
-  --secondary-foreground: oklch(0.97 0.01 250);
-  --muted: oklch(0.24 0.03 252);
-  --muted-foreground: oklch(0.72 0.03 250);
-  --accent: oklch(0.7 0.16 220);
-  --accent-foreground: oklch(0.15 0.03 250);
-  --destructive: oklch(0.62 0.24 25);
-  --destructive-foreground: oklch(0.98 0.01 250);
-  --border: oklch(0.32 0.04 252);
-  --input: oklch(0.3 0.04 252);
-  --ring: oklch(0.82 0.17 85);
-  --ok: oklch(0.75 0.2 148);
-  --ok-foreground: oklch(0.16 0.05 148);
-  --warn: oklch(0.85 0.17 90);
-  --warn-foreground: oklch(0.2 0.06 90);
-  --late: oklch(0.65 0.24 25);
-  --late-foreground: oklch(0.98 0.02 25);
-  --chart-1: oklch(0.75 0.2 148);
-  --chart-2: oklch(0.85 0.17 90);
-  --chart-3: oklch(0.65 0.24 25);
-  --chart-4: oklch(0.7 0.16 220);
-  --chart-5: oklch(0.72 0.03 250);
-  --sidebar: oklch(0.16 0.03 250);
-  --sidebar-foreground: oklch(0.97 0.01 250);
-  --sidebar-primary: oklch(0.82 0.17 85);
-  --sidebar-primary-foreground: oklch(0.18 0.03 250);
-  --sidebar-accent: oklch(0.26 0.04 252);
-  --sidebar-accent-foreground: oklch(0.97 0.01 250);
-  --sidebar-border: oklch(0.32 0.04 252);
-  --sidebar-ring: oklch(0.82 0.17 85);
+  --radius: 0.75rem;
+  --board: oklch(1 0 0);
+  --surface-header: oklch(0.35 0.09 220);
+  --background: oklch(0.975 0.008 220);
+  --foreground: oklch(0.24 0.03 235);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.03 235);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.03 235);
+  --primary: oklch(0.52 0.11 215);
+  --primary-foreground: oklch(0.99 0.005 220);
+  --secondary: oklch(0.94 0.02 210);
+  --secondary-foreground: oklch(0.32 0.05 225);
+  --muted: oklch(0.95 0.012 220);
+  --muted-foreground: oklch(0.52 0.03 230);
+  --accent: oklch(0.6 0.1 185);
+  --accent-foreground: oklch(0.99 0.005 220);
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.99 0.01 25);
+  --border: oklch(0.9 0.015 220);
+  --input: oklch(0.89 0.018 220);
+  --ring: oklch(0.52 0.11 215);
+  --ok: oklch(0.62 0.15 150);
+  --ok-foreground: oklch(0.99 0.01 150);
+  --warn: oklch(0.78 0.15 78);
+  --warn-foreground: oklch(0.25 0.07 60);
+  --late: oklch(0.56 0.21 25);
+  --late-foreground: oklch(0.99 0.01 25);
+  --chart-1: oklch(0.62 0.15 150);
+  --chart-2: oklch(0.78 0.15 78);
+  --chart-3: oklch(0.56 0.21 25);
+  --chart-4: oklch(0.52 0.11 215);
+  --chart-5: oklch(0.6 0.1 185);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.24 0.03 235);
+  --sidebar-primary: oklch(0.52 0.11 215);
+  --sidebar-primary-foreground: oklch(0.99 0.005 220);
+  --sidebar-accent: oklch(0.94 0.02 210);
+  --sidebar-accent-foreground: oklch(0.32 0.05 225);
+  --sidebar-border: oklch(0.9 0.015 220);
+  --sidebar-ring: oklch(0.52 0.11 215);
 }
 
 
@@ -125,18 +126,37 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     background-image:
-      radial-gradient(circle at 15% -10%, oklch(0.3 0.06 250 / 0.6), transparent 55%),
-      radial-gradient(circle at 90% 0%, oklch(0.28 0.08 220 / 0.45), transparent 50%);
+      linear-gradient(oklch(0.52 0.11 215 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.52 0.11 215 / 0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
     background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
   }
 }
 
 @utility board-panel {
-  background: linear-gradient(180deg, var(--board), oklch(0.12 0.02 250));
+  background: var(--board);
   border: 1px solid var(--border);
-  box-shadow: 0 24px 60px -30px oklch(0 0 0 / 0.9);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 1px 2px oklch(0.35 0.09 220 / 0.06), 0 12px 28px -20px oklch(0.35 0.09 220 / 0.35);
+}
+
+@utility clinic-header {
+  background: linear-gradient(115deg, var(--surface-header), oklch(0.45 0.1 200));
+  color: oklch(0.99 0.005 220);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 14px 34px -22px oklch(0.35 0.09 220 / 0.7);
+}
+
+@utility rule-top {
+  border-top: 4px solid var(--primary);
 }
 
 @utility tabular {
