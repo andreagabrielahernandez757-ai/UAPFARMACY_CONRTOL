@@ -42,7 +42,7 @@ export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }
       toast.success(`Ticket ${ticket.trim()} en espera`);
       setTicket("");
       setName("");
-      setPharmacy("");
+      setPharmacy(defaultPharmacy ?? "");
     },
     onError: () => toast.error("No se pudo registrar el paciente"),
   });
