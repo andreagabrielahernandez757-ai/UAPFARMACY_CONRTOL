@@ -50,7 +50,7 @@ export const Route = createFileRoute("/_gated/farmacia/$pharmacy")({
 });
 
 function FarmaciaPage() {
-  const { pharmacy } = Route.useLoaderData();
+  const { pharmacy } = Route.useLoaderData() as { pharmacy: Pharmacy };
   const now = useTicker();
   const { mounted } = useClock(now);
   const { rows, isError } = useDeliveries();
