@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,21 +13,27 @@ import {
 } from "@/components/ui/select";
 import { PHARMACY_LABELS, startWait, type Pharmacy } from "@/lib/deliveries";
 
-export function RegisterForm() {
+export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }) {
   const [ticket, setTicket] = useState("");
   const [name, setName] = useState("");
-  const [pharmacy, setPharmacy] = useState<Pharmacy | "">("");
+  const [pharmacy, setPharmacy] = useState<Pharmacy | "">(defaultPharmacy ?? "");
   const queryClient = useQueryClient();
 
-  const nowLabel = useMemo(
-    () =>
+  useEffect(() => {
+    if (defaultPharmacy) setPharmacy(defaultPharmacy);
+  }, [defaultPharmacy]);
+
+  const [nowLabel, setNowLabel] = useState("--:--");
+  useEffect(() => {
+    setNowLabel(
       new Date().toLocaleTimeString("es-SV", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       }),
-    [],
-  );
+    );
+  }, []);
+
 
   const mutation = useMutation({
     mutationFn: startWait,

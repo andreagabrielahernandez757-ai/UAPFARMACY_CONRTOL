@@ -9,12 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as GatedRouteImport } from './routes/_gated'
 import { Route as UnlockRouteImport } from './routes/unlock'
+import { Route as GatedIndexRouteImport } from './routes/_gated.index'
+import { Route as GatedHistorialRouteImport } from './routes/_gated.historial'
+import { Route as GatedFarmaciaPharmacyRouteImport } from './routes/_gated.farmacia.$pharmacy'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const GatedRoute = GatedRouteImport.update({
+  id: '/_gated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnlockRoute = UnlockRouteImport.update({
@@ -22,40 +24,68 @@ const UnlockRoute = UnlockRouteImport.update({
   path: '/unlock',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GatedIndexRoute = GatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GatedRoute,
+} as any)
+const GatedHistorialRoute = GatedHistorialRouteImport.update({
+  id: '/historial',
+  path: '/historial',
+  getParentRoute: () => GatedRoute,
+} as any)
+const GatedFarmaciaPharmacyRoute = GatedFarmaciaPharmacyRouteImport.update({
+  id: '/farmacia/$pharmacy',
+  path: '/farmacia/$pharmacy',
+  getParentRoute: () => GatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof GatedIndexRoute
   '/unlock': typeof UnlockRoute
+  '/historial': typeof GatedHistorialRoute
+  '/farmacia/$pharmacy': typeof GatedFarmaciaPharmacyRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/unlock': typeof UnlockRoute
+  '/historial': typeof GatedHistorialRoute
+  '/': typeof GatedIndexRoute
+  '/farmacia/$pharmacy': typeof GatedFarmaciaPharmacyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_gated': typeof GatedRouteWithChildren
   '/unlock': typeof UnlockRoute
+  '/_gated/historial': typeof GatedHistorialRoute
+  '/_gated/': typeof GatedIndexRoute
+  '/_gated/farmacia/$pharmacy': typeof GatedFarmaciaPharmacyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/unlock'
+  fullPaths: '/' | '/unlock' | '/historial' | '/farmacia/$pharmacy'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/unlock'
-  id: '__root__' | '/' | '/unlock'
+  to: '/unlock' | '/historial' | '/' | '/farmacia/$pharmacy'
+  id:
+    | '__root__'
+    | '/_gated'
+    | '/unlock'
+    | '/_gated/historial'
+    | '/_gated/'
+    | '/_gated/farmacia/$pharmacy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  GatedRoute: typeof GatedRouteWithChildren
   UnlockRoute: typeof UnlockRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_gated': {
+      id: '/_gated'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof GatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unlock': {
@@ -65,11 +95,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnlockRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_gated/': {
+      id: '/_gated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof GatedIndexRouteImport
+      parentRoute: typeof GatedRoute
+    }
+    '/_gated/historial': {
+      id: '/_gated/historial'
+      path: '/historial'
+      fullPath: '/historial'
+      preLoaderRoute: typeof GatedHistorialRouteImport
+      parentRoute: typeof GatedRoute
+    }
+    '/_gated/farmacia/$pharmacy': {
+      id: '/_gated/farmacia/$pharmacy'
+      path: '/farmacia/$pharmacy'
+      fullPath: '/farmacia/$pharmacy'
+      preLoaderRoute: typeof GatedFarmaciaPharmacyRouteImport
+      parentRoute: typeof GatedRoute
+    }
   }
 }
 
+interface GatedRouteChildren {
+  GatedHistorialRoute: typeof GatedHistorialRoute
+  GatedIndexRoute: typeof GatedIndexRoute
+  GatedFarmaciaPharmacyRoute: typeof GatedFarmaciaPharmacyRoute
+}
+
+const GatedRouteChildren: GatedRouteChildren = {
+  GatedHistorialRoute: GatedHistorialRoute,
+  GatedIndexRoute: GatedIndexRoute,
+  GatedFarmaciaPharmacyRoute: GatedFarmaciaPharmacyRoute,
+}
+
+const GatedRouteWithChildren = GatedRoute._addFileChildren(GatedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  GatedRoute: GatedRouteWithChildren,
   UnlockRoute: UnlockRoute,
 }
 export const routeTree = rootRouteImport
