@@ -123,6 +123,7 @@ export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }
               ))}
             </SelectContent>
           </Select>
+        </div>
       </div>
 
       <div className="mt-4 grid gap-2">
@@ -140,7 +141,6 @@ export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }
         />
       </div>
 
-      </div>
 
       <Button
         type="submit"
