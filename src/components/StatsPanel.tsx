@@ -78,13 +78,22 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
     const byDay = [...byDayMap.entries()].slice(0, 7);
 
     return { done: done.length, waiting: waiting.length, avg, max, min, outOfTime, byPharmacy, byDay };
-  }, [rows, now]);
+  }, [scoped, now]);
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-widest text-primary">
-        Estadísticas
-      </h2>
+      <div className="grid gap-3 sm:flex sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold uppercase tracking-widest text-primary">
+            Estadísticas
+          </h2>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+            {RANGE_LABELS[range.preset]}
+          </p>
+        </div>
+        <RangeFilter value={range} onChange={setRange} />
+      </div>
+
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <Metric label="Atendidos" value={String(stats.done)} tone="ok" />
         <Metric label="En espera" value={String(stats.waiting)} tone="warn" />
