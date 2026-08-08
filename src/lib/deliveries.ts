@@ -26,7 +26,9 @@ export type Delivery = {
   started_at: string;
   delivered_at: string | null;
   total_minutes: number | null;
+  observations: string | null;
 };
+
 
 export type Status = "ok" | "warn" | "late";
 
@@ -61,7 +63,9 @@ export function formatTime(iso: string): string {
 export async function fetchDeliveries(): Promise<Delivery[]> {
   const { data, error } = await supabase
     .from("deliveries")
-    .select("id, ticket, patient_name, pharmacy, started_at, delivered_at, total_minutes")
+    .select(
+      "id, ticket, patient_name, pharmacy, started_at, delivered_at, total_minutes, observations",
+    )
     .order("started_at", { ascending: false })
     .limit(500);
   if (error) throw error;
@@ -72,14 +76,17 @@ export async function startWait(input: {
   ticket: string;
   patient_name: string;
   pharmacy: Pharmacy;
+  observations?: string;
 }) {
   const { error } = await supabase.from("deliveries").insert({
     ticket: input.ticket,
     patient_name: input.patient_name,
     pharmacy: input.pharmacy,
+    observations: input.observations?.trim() ? input.observations.trim() : null,
   });
   if (error) throw error;
 }
+
 
 export async function markDelivered(d: Delivery) {
   const now = new Date();

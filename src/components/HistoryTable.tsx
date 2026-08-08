@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -7,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { RangeFilter } from "@/components/RangeFilter";
+import { defaultRange, filterByRange, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
   PHARMACY_LABELS,
@@ -23,6 +27,37 @@ const toneFor = (mins: number) => {
   return st === "late" ? "text-late" : st === "warn" ? "text-warn" : "text-ok";
 };
 
+async function exportToExcel(rows: Delivery[]) {
+  const XLSX = await import("xlsx");
+  const data = rows.map((r) => ({
+    Ticket: r.ticket,
+    Paciente: r.patient_name,
+    Farmacia: PHARMACY_LABELS[r.pharmacy],
+    Fecha: new Date(r.started_at).toLocaleDateString("es-SV"),
+    Ingreso: formatTime(r.started_at),
+    Entrega: r.delivered_at ? formatTime(r.delivered_at) : "",
+    "Tiempo total (min)": r.total_minutes ?? "",
+    Estado: (r.total_minutes ?? 0) >= LATE_MINUTES ? "Fuera de tiempo" : "En tiempo",
+    Observaciones: r.observations ?? "",
+  }));
+  const sheet = XLSX.utils.json_to_sheet(data);
+  sheet["!cols"] = [
+    { wch: 10 },
+    { wch: 28 },
+    { wch: 22 },
+    { wch: 12 },
+    { wch: 10 },
+    { wch: 10 },
+    { wch: 18 },
+    { wch: 16 },
+    { wch: 40 },
+  ];
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, sheet, "Historial");
+  const stamp = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(book, `historial-entregas-${stamp}.xlsx`);
+}
+
 export function HistoryTable({
   rows,
   lockedPharmacy,
@@ -32,20 +67,42 @@ export function HistoryTable({
 }) {
   const [query, setQuery] = useState("");
   const [pharmacy, setPharmacy] = useState<Pharmacy | "all">(lockedPharmacy ?? "all");
+  const [range, setRange] = useState<RangeValue>({ ...defaultRange, preset: "all" });
+  const [exporting, setExporting] = useState(false);
 
   const done = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return rows
-      .filter((r) => r.delivered_at)
+    return filterByRange(
+      rows.filter((r) => r.delivered_at),
+      range,
+      Date.now(),
+    )
       .filter((r) => (lockedPharmacy ? r.pharmacy === lockedPharmacy : true))
       .filter((r) => (pharmacy === "all" ? true : r.pharmacy === pharmacy))
       .filter(
         (r) =>
           !q ||
           r.ticket.toLowerCase().includes(q) ||
-          r.patient_name.toLowerCase().includes(q),
+          r.patient_name.toLowerCase().includes(q) ||
+          (r.observations ?? "").toLowerCase().includes(q),
       );
-  }, [rows, query, pharmacy, lockedPharmacy]);
+  }, [rows, query, pharmacy, lockedPharmacy, range]);
+
+  const download = async () => {
+    if (done.length === 0) {
+      toast.error("No hay registros para exportar");
+      return;
+    }
+    setExporting(true);
+    try {
+      await exportToExcel(done);
+      toast.success(`Historial exportado · ${done.length} registros`);
+    } catch {
+      toast.error("No se pudo exportar el historial");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <section className="space-y-4">
@@ -57,7 +114,7 @@ export function HistoryTable({
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar ticket o paciente"
+            placeholder="Buscar ticket, paciente u observación"
             className="h-11 sm:w-64"
             aria-label="Buscar en historial"
           />
@@ -80,6 +137,18 @@ export function HistoryTable({
             </Select>
           )}
         </div>
+      </div>
+
+      <div className="board-panel rule-top grid gap-3 p-4 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <RangeFilter value={range} onChange={setRange} />
+        <Button
+          type="button"
+          onClick={download}
+          disabled={exporting}
+          className="h-11 font-bold uppercase tracking-widest"
+        >
+          {exporting ? "Exportando…" : "Exportar a Excel"}
+        </Button>
       </div>
 
       <div className="board-panel rule-top overflow-hidden">
@@ -105,8 +174,13 @@ export function HistoryTable({
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_7rem_8rem]"
                 >
                   <span className="tabular text-lg font-bold text-primary">{d.ticket}</span>
-                  <span className="col-span-2 min-w-0 truncate font-semibold lg:col-span-1">
-                    {d.patient_name}
+                  <span className="col-span-2 min-w-0 lg:col-span-1">
+                    <span className="block truncate font-semibold">{d.patient_name}</span>
+                    {d.observations ? (
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {d.observations}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="text-xs font-bold uppercase tracking-wider text-accent">
                     {PHARMACY_SHORT[d.pharmacy]}

@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { RangeFilter } from "@/components/RangeFilter";
+import { defaultRange, filterByRange, RANGE_LABELS, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
   PHARMACY_LABELS,
@@ -7,6 +9,7 @@ import {
   type Delivery,
   type Pharmacy,
 } from "@/lib/deliveries";
+
 
 function Metric({
   label,
@@ -36,9 +39,13 @@ function Metric({
 }
 
 export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
+  const [range, setRange] = useState<RangeValue>(defaultRange);
+  const scoped = useMemo(() => filterByRange(rows, range, now), [rows, range, now]);
+
   const stats = useMemo(() => {
-    const done = rows.filter((r) => r.delivered_at);
-    const waiting = rows.filter((r) => !r.delivered_at);
+    const done = scoped.filter((r) => r.delivered_at);
+    const waiting = scoped.filter((r) => !r.delivered_at);
+
     const times = done.map((r) => r.total_minutes ?? elapsedMinutes(r, now));
     const avg = times.length ? times.reduce((a, b) => a + b, 0) / times.length : 0;
     const max = times.length ? Math.max(...times) : 0;
@@ -71,13 +78,22 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
     const byDay = [...byDayMap.entries()].slice(0, 7);
 
     return { done: done.length, waiting: waiting.length, avg, max, min, outOfTime, byPharmacy, byDay };
-  }, [rows, now]);
+  }, [scoped, now]);
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-bold uppercase tracking-widest text-primary">
-        Estadísticas
-      </h2>
+      <div className="grid gap-3 sm:flex sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold uppercase tracking-widest text-primary">
+            Estadísticas
+          </h2>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+            {RANGE_LABELS[range.preset]}
+          </p>
+        </div>
+        <RangeFilter value={range} onChange={setRange} />
+      </div>
+
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <Metric label="Atendidos" value={String(stats.done)} tone="ok" />
         <Metric label="En espera" value={String(stats.waiting)} tone="warn" />
