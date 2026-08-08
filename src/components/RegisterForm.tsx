@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import { PHARMACY_LABELS, startWait, type Pharmacy } from "@/lib/deliveries";
 export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }) {
   const [ticket, setTicket] = useState("");
   const [name, setName] = useState("");
+  const [observations, setObservations] = useState("");
   const [pharmacy, setPharmacy] = useState<Pharmacy | "">(defaultPharmacy ?? "");
   const queryClient = useQueryClient();
 
@@ -42,6 +44,7 @@ export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }
       toast.success(`Ticket ${ticket.trim()} en espera`);
       setTicket("");
       setName("");
+      setObservations("");
       setPharmacy(defaultPharmacy ?? "");
     },
     onError: () => toast.error("No se pudo registrar el paciente"),
@@ -55,8 +58,14 @@ export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }
       toast.error("Complete ticket, nombre y farmacia");
       return;
     }
-    mutation.mutate({ ticket: t, patient_name: n, pharmacy });
+    mutation.mutate({
+      ticket: t,
+      patient_name: n,
+      pharmacy,
+      observations: observations.trim().slice(0, 500),
+    });
   };
+
 
   return (
     <form
