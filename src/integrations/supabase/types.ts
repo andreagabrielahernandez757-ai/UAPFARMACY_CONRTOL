@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           delivered_at: string | null
           id: string
+          observations: string | null
           patient_name: string
           pharmacy: Database["public"]["Enums"]["pharmacy"]
           started_at: string
@@ -29,6 +30,7 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           id?: string
+          observations?: string | null
           patient_name: string
           pharmacy: Database["public"]["Enums"]["pharmacy"]
           started_at?: string
@@ -39,6 +41,7 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           id?: string
+          observations?: string | null
           patient_name?: string
           pharmacy?: Database["public"]["Enums"]["pharmacy"]
           started_at?: string
