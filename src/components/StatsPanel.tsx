@@ -39,9 +39,13 @@ function Metric({
 }
 
 export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
+  const [range, setRange] = useState<RangeValue>(defaultRange);
+  const scoped = useMemo(() => filterByRange(rows, range, now), [rows, range, now]);
+
   const stats = useMemo(() => {
-    const done = rows.filter((r) => r.delivered_at);
-    const waiting = rows.filter((r) => !r.delivered_at);
+    const done = scoped.filter((r) => r.delivered_at);
+    const waiting = scoped.filter((r) => !r.delivered_at);
+
     const times = done.map((r) => r.total_minutes ?? elapsedMinutes(r, now));
     const avg = times.length ? times.reduce((a, b) => a + b, 0) / times.length : 0;
     const max = times.length ? Math.max(...times) : 0;
