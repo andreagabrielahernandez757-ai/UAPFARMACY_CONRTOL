@@ -123,7 +123,23 @@ export function RegisterForm({ defaultPharmacy }: { defaultPharmacy?: Pharmacy }
               ))}
             </SelectContent>
           </Select>
-        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2">
+        <Label htmlFor="observations" className="uppercase tracking-wider">
+          Observaciones <span className="normal-case text-muted-foreground">(opcional)</span>
+        </Label>
+        <Textarea
+          id="observations"
+          value={observations}
+          maxLength={500}
+          rows={2}
+          onChange={(e) => setObservations(e.target.value)}
+          placeholder="Notas adicionales del registro"
+          className="text-base"
+        />
+      </div>
+
       </div>
 
       <Button
