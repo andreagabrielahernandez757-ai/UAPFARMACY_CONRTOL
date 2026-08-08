@@ -26,7 +26,9 @@ export type Delivery = {
   started_at: string;
   delivered_at: string | null;
   total_minutes: number | null;
+  observations: string | null;
 };
+
 
 export type Status = "ok" | "warn" | "late";
 
