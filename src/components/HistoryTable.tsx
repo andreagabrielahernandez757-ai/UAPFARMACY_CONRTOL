@@ -13,7 +13,6 @@ import { RangeFilter } from "@/components/RangeFilter";
 import { defaultRange, filterByRange, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
-  OUTCOME_ICONS,
   OUTCOME_LABELS,
   PHARMACY_LABELS,
   PHARMACY_SHORT,
@@ -213,7 +212,7 @@ export function HistoryTable({
                     }`}
                     title={OUTCOME_LABELS[outcome]}
                   >
-                    {OUTCOME_ICONS[outcome]} {OUTCOME_LABELS[outcome]}
+                    {OUTCOME_LABELS[outcome]}
                   </span>
                   <span
                     className={`tabular text-right text-lg font-bold ${

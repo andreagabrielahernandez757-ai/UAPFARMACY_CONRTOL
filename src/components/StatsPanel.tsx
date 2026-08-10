@@ -3,7 +3,6 @@ import { RangeFilter } from "@/components/RangeFilter";
 import { defaultRange, filterByRange, RANGE_LABELS, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
-  OUTCOME_ICONS,
   OUTCOME_LABELS,
   OUTCOME_ORDER,
   PHARMACY_LABELS,
@@ -141,7 +140,7 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
               className="flex items-center justify-between gap-3 border-b border-border/50 pb-3 sm:border-0 sm:pb-0"
             >
               <span className="min-w-0 truncate text-sm font-semibold uppercase tracking-wider">
-                {OUTCOME_ICONS[o.outcome]} {OUTCOME_LABELS[o.outcome]}
+                {OUTCOME_LABELS[o.outcome]}
               </span>
               <span className="tabular shrink-0 text-2xl font-bold text-warn">{o.count}</span>
             </li>
