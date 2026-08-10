@@ -3,7 +3,6 @@ import { RangeFilter } from "@/components/RangeFilter";
 import { defaultRange, filterByRange, RANGE_LABELS, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
-  OUTCOME_ICONS,
   OUTCOME_LABELS,
   OUTCOME_ORDER,
   PHARMACY_LABELS,
@@ -134,14 +133,14 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
           Incidencias por motivo
         </h3>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {stats.byOutcome.map((o) => (
             <li
               key={o.outcome}
               className="flex items-center justify-between gap-3 border-b border-border/50 pb-3 sm:border-0 sm:pb-0"
             >
               <span className="min-w-0 truncate text-sm font-semibold uppercase tracking-wider">
-                {OUTCOME_ICONS[o.outcome]} {OUTCOME_LABELS[o.outcome]}
+                {OUTCOME_LABELS[o.outcome]}
               </span>
               <span className="tabular shrink-0 text-2xl font-bold text-warn">{o.count}</span>
             </li>

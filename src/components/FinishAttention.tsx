@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  OUTCOME_ICONS,
   OUTCOME_LABELS,
   OUTCOME_ORDER,
   closeDelivery,
@@ -37,7 +36,7 @@ export function FinishAttention({ delivery }: { delivery: Delivery }) {
     mutationFn: (outcome: Outcome) => closeDelivery(delivery, outcome),
     onSuccess: (_data, outcome) => {
       queryClient.invalidateQueries({ queryKey: ["deliveries"] });
-      toast.success(`${OUTCOME_ICONS[outcome]} ${OUTCOME_LABELS[outcome]}`, {
+      toast.success(OUTCOME_LABELS[outcome], {
         description: `Ticket ${delivery.ticket} · ${delivery.patient_name}`,
       });
     },
@@ -76,7 +75,6 @@ export function FinishAttention({ delivery }: { delivery: Delivery }) {
               onSelect={() => choose(o)}
               className="cursor-pointer text-base font-semibold"
             >
-              <span className="mr-2">{OUTCOME_ICONS[o]}</span>
               {OUTCOME_LABELS[o]}
             </DropdownMenuItem>
           ))}
