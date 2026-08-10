@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  OUTCOME_ICONS,
   OUTCOME_LABELS,
   OUTCOME_ORDER,
   closeDelivery,
