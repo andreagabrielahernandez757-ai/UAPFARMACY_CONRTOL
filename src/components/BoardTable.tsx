@@ -32,11 +32,12 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
 
   return (
     <div className="board-panel rule-top overflow-hidden">
-      <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_14rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
+      <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_minmax(0,1fr)_8rem_14rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
         <span>Ticket</span>
         <span>Paciente</span>
         <span>Farmacia</span>
         <span>Ingreso</span>
+        <span>Observación</span>
         <span>Tiempo</span>
         <span className="text-right">Estado</span>
       </div>
@@ -47,7 +48,7 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
           return (
             <li
               key={d.id}
-              className="flip-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-4 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_14rem]"
+              className="flip-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-4 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_minmax(0,1fr)_8rem_14rem]"
             >
               <span className="tabular shrink-0 text-2xl font-bold text-primary lg:text-3xl">
                 {d.ticket}
@@ -62,6 +63,12 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
                 {formatTime(d.started_at)}
               </span>
               <span
+                className="col-span-2 min-w-0 truncate text-sm text-muted-foreground lg:col-span-1"
+                title={d.observations ?? ""}
+              >
+                {d.observations?.trim() ? d.observations : "—"}
+              </span>
+              <span
                 className={`tabular w-fit rounded-md px-3 py-1 text-2xl font-bold ${statusStyles[st]}`}
               >
                 {formatClock(mins)}
@@ -72,6 +79,7 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
                 </span>
                 <FinishAttention delivery={d} />
               </div>
+
             </li>
           );
         })}
