@@ -36,7 +36,7 @@ export function FinishAttention({ delivery }: { delivery: Delivery }) {
     mutationFn: (outcome: Outcome) => closeDelivery(delivery, outcome),
     onSuccess: (_data, outcome) => {
       queryClient.invalidateQueries({ queryKey: ["deliveries"] });
-      toast.success(`${OUTCOME_ICONS[outcome]} ${OUTCOME_LABELS[outcome]}`, {
+      toast.success(OUTCOME_LABELS[outcome], {
         description: `Ticket ${delivery.ticket} · ${delivery.patient_name}`,
       });
     },
