@@ -133,7 +133,7 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
           Incidencias por motivo
         </h3>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {stats.byOutcome.map((o) => (
             <li
               key={o.outcome}
