@@ -165,12 +165,13 @@ export function HistoryTable({
       </div>
 
       <div className="board-panel rule-top overflow-hidden">
-        <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_7rem_8rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
+        <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_6rem_6rem_11rem_7rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
           <span>Ticket</span>
           <span>Paciente</span>
           <span>Farmacia</span>
           <span>Ingreso</span>
-          <span>Entrega</span>
+          <span>Cierre</span>
+          <span>Motivo</span>
           <span className="text-right">Tiempo total</span>
         </div>
         {done.length === 0 ? (
@@ -181,10 +182,12 @@ export function HistoryTable({
           <ul className="max-h-[32rem] overflow-y-auto">
             {done.map((d) => {
               const mins = d.total_minutes ?? 0;
+              const outcome = outcomeOf(d);
+              const delivered = outcome === "entregado";
               return (
                 <li
                   key={d.id}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_7rem_8rem]"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_6rem_6rem_11rem_7rem]"
                 >
                   <span className="tabular text-lg font-bold text-primary">{d.ticket}</span>
                   <span className="col-span-2 min-w-0 lg:col-span-1">
@@ -205,8 +208,24 @@ export function HistoryTable({
                     {d.delivered_at ? formatTime(d.delivered_at) : "—"}
                   </span>
                   <span
-                    className={`tabular text-right text-lg font-bold ${toneFor(mins)}`}
-                    title={mins >= LATE_MINUTES ? "Fuera de tiempo" : "Dentro del tiempo"}
+                    className={`truncate text-xs font-bold uppercase tracking-wider ${
+                      delivered ? "text-ok" : "text-warn"
+                    }`}
+                    title={OUTCOME_LABELS[outcome]}
+                  >
+                    {OUTCOME_ICONS[outcome]} {OUTCOME_LABELS[outcome]}
+                  </span>
+                  <span
+                    className={`tabular text-right text-lg font-bold ${
+                      delivered ? toneFor(mins) : "text-muted-foreground"
+                    }`}
+                    title={
+                      delivered
+                        ? mins >= LATE_MINUTES
+                          ? "Fuera de tiempo"
+                          : "Dentro del tiempo"
+                        : "Incidencia: no cuenta para el promedio"
+                    }
                   >
                     {formatClock(mins)}
                   </span>
@@ -216,6 +235,7 @@ export function HistoryTable({
           </ul>
         )}
       </div>
+
     </section>
   );
 }
