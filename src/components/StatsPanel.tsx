@@ -120,14 +120,35 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
         <RangeFilter value={range} onChange={setRange} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <Metric label="Atendidos" value={String(stats.done)} tone="ok" />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
+        <Metric label="Entregados" value={String(stats.done)} tone="ok" />
         <Metric label="En espera" value={String(stats.waiting)} tone="warn" />
-        <Metric label="Promedio" value={formatClock(stats.avg)} />
+        <Metric label="Promedio entrega" value={formatClock(stats.avg)} />
         <Metric label="Tiempo máximo" value={formatClock(stats.max)} tone="late" />
         <Metric label="Tiempo mínimo" value={formatClock(stats.min)} tone="ok" />
         <Metric label="Fuera de tiempo" value={String(stats.outOfTime)} tone="late" />
+        <Metric label="Incidencias" value={String(stats.incidents)} tone="warn" />
       </div>
+
+      <div className="board-panel p-4">
+        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          Incidencias por motivo
+        </h3>
+        <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+          {stats.byOutcome.map((o) => (
+            <li
+              key={o.outcome}
+              className="flex items-center justify-between gap-3 border-b border-border/50 pb-3 sm:border-0 sm:pb-0"
+            >
+              <span className="min-w-0 truncate text-sm font-semibold uppercase tracking-wider">
+                {OUTCOME_ICONS[o.outcome]} {OUTCOME_LABELS[o.outcome]}
+              </span>
+              <span className="tabular shrink-0 text-2xl font-bold text-warn">{o.count}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="board-panel p-4">
