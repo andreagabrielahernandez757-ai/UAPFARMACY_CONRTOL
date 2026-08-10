@@ -18,6 +18,29 @@ export const PHARMACY_SHORT: Record<Pharmacy, string> = {
 export const WARN_MINUTES = 20;
 export const LATE_MINUTES = 30;
 
+export type Outcome = "entregado" | "retirado" | "sin_respuesta" | "cancelado";
+
+export const OUTCOME_LABELS: Record<Outcome, string> = {
+  entregado: "Medicamento entregado",
+  retirado: "Paciente se retiró",
+  sin_respuesta: "No respondió al llamado",
+  cancelado: "Atención cancelada",
+};
+
+export const OUTCOME_ICONS: Record<Outcome, string> = {
+  entregado: "✅",
+  retirado: "🚶",
+  sin_respuesta: "📢",
+  cancelado: "❌",
+};
+
+export const OUTCOME_ORDER: Outcome[] = [
+  "entregado",
+  "retirado",
+  "sin_respuesta",
+  "cancelado",
+];
+
 export type Delivery = {
   id: string;
   ticket: string;
@@ -27,10 +50,20 @@ export type Delivery = {
   delivered_at: string | null;
   total_minutes: number | null;
   observations: string | null;
+  outcome: Outcome | null;
 };
 
+/** Solo las entregas efectivas cuentan para el tiempo promedio */
+export function isDelivered(d: Delivery): boolean {
+  return !!d.delivered_at && (d.outcome ?? "entregado") === "entregado";
+}
+
+export function isIncident(d: Delivery): boolean {
+  return !!d.delivered_at && (d.outcome ?? "entregado") !== "entregado";
+}
 
 export type Status = "ok" | "warn" | "late";
+
 
 export function statusFor(minutes: number): Status {
   if (minutes >= LATE_MINUTES) return "late";
@@ -64,7 +97,7 @@ export async function fetchDeliveries(): Promise<Delivery[]> {
   const { data, error } = await supabase
     .from("deliveries")
     .select(
-      "id, ticket, patient_name, pharmacy, started_at, delivered_at, total_minutes, observations",
+      "id, ticket, patient_name, pharmacy, started_at, delivered_at, total_minutes, observations, outcome",
     )
     .order("started_at", { ascending: false })
     .limit(500);
@@ -87,8 +120,8 @@ export async function startWait(input: {
   if (error) throw error;
 }
 
-
-export async function markDelivered(d: Delivery) {
+/** Cierra la atención registrando el motivo. El tiempo total se guarda siempre. */
+export async function closeDelivery(d: Delivery, outcome: Outcome) {
   const now = new Date();
   const minutes = (now.getTime() - new Date(d.started_at).getTime()) / 60000;
   const { error } = await supabase
@@ -96,7 +129,9 @@ export async function markDelivered(d: Delivery) {
     .update({
       delivered_at: now.toISOString(),
       total_minutes: Math.round(minutes * 100) / 100,
+      outcome,
     })
     .eq("id", d.id);
   if (error) throw error;
 }
+

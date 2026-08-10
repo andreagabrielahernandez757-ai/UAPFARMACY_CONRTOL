@@ -1,12 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { FinishAttention } from "@/components/FinishAttention";
 import {
   PHARMACY_SHORT,
   elapsedMinutes,
   formatClock,
   formatTime,
-  markDelivered,
   statusFor,
   type Delivery,
   type Status,
@@ -25,16 +22,6 @@ const statusLabel: Record<Status, string> = {
 };
 
 export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
-  const queryClient = useQueryClient();
-  const mutation = useMutation({
-    mutationFn: markDelivered,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["deliveries"] });
-      toast.success("Medicamento entregado");
-    },
-    onError: () => toast.error("No se pudo finalizar el registro"),
-  });
-
   if (rows.length === 0) {
     return (
       <div className="board-panel rule-top p-10 text-center text-lg font-semibold uppercase tracking-widest text-muted-foreground">
@@ -45,7 +32,7 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
 
   return (
     <div className="board-panel rule-top overflow-hidden">
-      <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_12rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
+      <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_14rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
         <span>Ticket</span>
         <span>Paciente</span>
         <span>Farmacia</span>
@@ -60,7 +47,7 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
           return (
             <li
               key={d.id}
-              className="flip-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-4 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_12rem]"
+              className="flip-row grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-4 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_8rem_14rem]"
             >
               <span className="tabular shrink-0 text-2xl font-bold text-primary lg:text-3xl">
                 {d.ticket}
@@ -83,15 +70,7 @@ export function BoardTable({ rows, now }: { rows: Delivery[]; now: number }) {
                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   {statusLabel[st]}
                 </span>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={mutation.isPending}
-                  onClick={() => mutation.mutate(d)}
-                  className="h-10 font-bold uppercase tracking-wider"
-                >
-                  Entregado
-                </Button>
+                <FinishAttention delivery={d} />
               </div>
             </li>
           );

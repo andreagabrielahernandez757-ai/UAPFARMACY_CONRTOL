@@ -13,12 +13,16 @@ import { RangeFilter } from "@/components/RangeFilter";
 import { defaultRange, filterByRange, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
+  OUTCOME_ICONS,
+  OUTCOME_LABELS,
   PHARMACY_LABELS,
   PHARMACY_SHORT,
   formatClock,
   formatTime,
+  isDelivered,
   statusFor,
   type Delivery,
+  type Outcome,
   type Pharmacy,
 } from "@/lib/deliveries";
 
@@ -26,6 +30,8 @@ const toneFor = (mins: number) => {
   const st = statusFor(mins);
   return st === "late" ? "text-late" : st === "warn" ? "text-warn" : "text-ok";
 };
+
+const outcomeOf = (r: Delivery): Outcome => r.outcome ?? "entregado";
 
 async function exportToExcel(rows: Delivery[]) {
   const XLSX = await import("xlsx");
@@ -35,9 +41,14 @@ async function exportToExcel(rows: Delivery[]) {
     Farmacia: PHARMACY_LABELS[r.pharmacy],
     Fecha: new Date(r.started_at).toLocaleDateString("es-SV"),
     Ingreso: formatTime(r.started_at),
-    Entrega: r.delivered_at ? formatTime(r.delivered_at) : "",
+    Cierre: r.delivered_at ? formatTime(r.delivered_at) : "",
     "Tiempo total (min)": r.total_minutes ?? "",
-    Estado: (r.total_minutes ?? 0) >= LATE_MINUTES ? "Fuera de tiempo" : "En tiempo",
+    "Motivo de cierre": OUTCOME_LABELS[outcomeOf(r)],
+    Estado: !isDelivered(r)
+      ? "Incidencia"
+      : (r.total_minutes ?? 0) >= LATE_MINUTES
+        ? "Fuera de tiempo"
+        : "En tiempo",
     Observaciones: r.observations ?? "",
   }));
   const sheet = XLSX.utils.json_to_sheet(data);
@@ -49,6 +60,7 @@ async function exportToExcel(rows: Delivery[]) {
     { wch: 10 },
     { wch: 10 },
     { wch: 18 },
+    { wch: 24 },
     { wch: 16 },
     { wch: 40 },
   ];
@@ -57,6 +69,7 @@ async function exportToExcel(rows: Delivery[]) {
   const stamp = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(book, `historial-entregas-${stamp}.xlsx`);
 }
+
 
 export function HistoryTable({
   rows,
@@ -152,12 +165,13 @@ export function HistoryTable({
       </div>
 
       <div className="board-panel rule-top overflow-hidden">
-        <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_7rem_8rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
+        <div className="hidden grid-cols-[7rem_minmax(0,1fr)_11rem_6rem_6rem_11rem_7rem] gap-3 border-b border-border bg-secondary px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-secondary-foreground lg:grid">
           <span>Ticket</span>
           <span>Paciente</span>
           <span>Farmacia</span>
           <span>Ingreso</span>
-          <span>Entrega</span>
+          <span>Cierre</span>
+          <span>Motivo</span>
           <span className="text-right">Tiempo total</span>
         </div>
         {done.length === 0 ? (
@@ -168,10 +182,12 @@ export function HistoryTable({
           <ul className="max-h-[32rem] overflow-y-auto">
             {done.map((d) => {
               const mins = d.total_minutes ?? 0;
+              const outcome = outcomeOf(d);
+              const delivered = outcome === "entregado";
               return (
                 <li
                   key={d.id}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_7rem_7rem_8rem]"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border px-4 py-3 last:border-0 odd:bg-muted/40 lg:grid-cols-[7rem_minmax(0,1fr)_11rem_6rem_6rem_11rem_7rem]"
                 >
                   <span className="tabular text-lg font-bold text-primary">{d.ticket}</span>
                   <span className="col-span-2 min-w-0 lg:col-span-1">
@@ -192,8 +208,24 @@ export function HistoryTable({
                     {d.delivered_at ? formatTime(d.delivered_at) : "—"}
                   </span>
                   <span
-                    className={`tabular text-right text-lg font-bold ${toneFor(mins)}`}
-                    title={mins >= LATE_MINUTES ? "Fuera de tiempo" : "Dentro del tiempo"}
+                    className={`truncate text-xs font-bold uppercase tracking-wider ${
+                      delivered ? "text-ok" : "text-warn"
+                    }`}
+                    title={OUTCOME_LABELS[outcome]}
+                  >
+                    {OUTCOME_ICONS[outcome]} {OUTCOME_LABELS[outcome]}
+                  </span>
+                  <span
+                    className={`tabular text-right text-lg font-bold ${
+                      delivered ? toneFor(mins) : "text-muted-foreground"
+                    }`}
+                    title={
+                      delivered
+                        ? mins >= LATE_MINUTES
+                          ? "Fuera de tiempo"
+                          : "Dentro del tiempo"
+                        : "Incidencia: no cuenta para el promedio"
+                    }
                   >
                     {formatClock(mins)}
                   </span>
@@ -203,6 +235,7 @@ export function HistoryTable({
           </ul>
         )}
       </div>
+
     </section>
   );
 }

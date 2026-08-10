@@ -20,6 +20,7 @@ export type Database = {
           delivered_at: string | null
           id: string
           observations: string | null
+          outcome: Database["public"]["Enums"]["delivery_outcome"] | null
           patient_name: string
           pharmacy: Database["public"]["Enums"]["pharmacy"]
           started_at: string
@@ -31,6 +32,7 @@ export type Database = {
           delivered_at?: string | null
           id?: string
           observations?: string | null
+          outcome?: Database["public"]["Enums"]["delivery_outcome"] | null
           patient_name: string
           pharmacy: Database["public"]["Enums"]["pharmacy"]
           started_at?: string
@@ -42,6 +44,7 @@ export type Database = {
           delivered_at?: string | null
           id?: string
           observations?: string | null
+          outcome?: Database["public"]["Enums"]["delivery_outcome"] | null
           patient_name?: string
           pharmacy?: Database["public"]["Enums"]["pharmacy"]
           started_at?: string
@@ -58,6 +61,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      delivery_outcome: "entregado" | "retirado" | "sin_respuesta" | "cancelado"
       pharmacy: "comunes" | "especializada" | "central"
     }
     CompositeTypes: {
@@ -186,6 +190,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      delivery_outcome: ["entregado", "retirado", "sin_respuesta", "cancelado"],
       pharmacy: ["comunes", "especializada", "central"],
     },
   },
