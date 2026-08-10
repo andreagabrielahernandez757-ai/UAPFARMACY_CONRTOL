@@ -75,7 +75,6 @@ export function FinishAttention({ delivery }: { delivery: Delivery }) {
               onSelect={() => choose(o)}
               className="cursor-pointer text-base font-semibold"
             >
-              <span className="mr-2">{OUTCOME_ICONS[o]}</span>
               {OUTCOME_LABELS[o]}
             </DropdownMenuItem>
           ))}
