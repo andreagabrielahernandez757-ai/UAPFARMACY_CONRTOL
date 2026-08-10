@@ -165,10 +165,12 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
                   {PHARMACY_LABELS[p.pharmacy]}
                 </span>
                 <span className="tabular shrink-0 text-sm text-muted-foreground">
-                  <span className="text-ok">{p.done}</span> atend. ·{" "}
+                  <span className="text-ok">{p.done}</span> entreg. ·{" "}
                   <span className="text-warn">{p.waiting}</span> espera ·{" "}
-                  {formatClock(p.avg)} prom. · <span className="text-late">{p.late}</span> tarde
+                  {formatClock(p.avg)} prom. · <span className="text-late">{p.late}</span> tarde ·{" "}
+                  <span className="text-warn">{p.incidents}</span> incid.
                 </span>
+
               </li>
             ))}
           </ul>
