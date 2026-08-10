@@ -43,7 +43,9 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
   const scoped = useMemo(() => filterByRange(rows, range, now), [rows, range, now]);
 
   const stats = useMemo(() => {
-    const done = scoped.filter((r) => r.delivered_at);
+    const closed = scoped.filter((r) => r.delivered_at);
+    const done = closed.filter(isDelivered);
+    const incidents = closed.filter(isIncident);
     const waiting = scoped.filter((r) => !r.delivered_at);
 
     const times = done.map((r) => r.total_minutes ?? elapsedMinutes(r, now));
@@ -54,6 +56,11 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
       done.filter((r) => (r.total_minutes ?? 0) >= LATE_MINUTES).length +
       waiting.filter((r) => elapsedMinutes(r, now) >= LATE_MINUTES).length;
 
+    const byOutcome = OUTCOME_ORDER.filter((o) => o !== "entregado").map((o) => ({
+      outcome: o,
+      count: incidents.filter((r) => r.outcome === o).length,
+    }));
+
     const byPharmacy = (Object.keys(PHARMACY_LABELS) as Pharmacy[]).map((p) => {
       const d = done.filter((r) => r.pharmacy === p);
       const t = d.map((r) => r.total_minutes ?? 0);
@@ -63,6 +70,7 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
         done: d.length,
         avg: t.length ? t.reduce((a, b) => a + b, 0) / t.length : 0,
         late: d.filter((x) => (x.total_minutes ?? 0) >= LATE_MINUTES).length,
+        incidents: incidents.filter((r) => r.pharmacy === p).length,
       };
     });
 
@@ -77,8 +85,20 @@ export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
     }
     const byDay = [...byDayMap.entries()].slice(0, 7);
 
-    return { done: done.length, waiting: waiting.length, avg, max, min, outOfTime, byPharmacy, byDay };
+    return {
+      done: done.length,
+      waiting: waiting.length,
+      avg,
+      max,
+      min,
+      outOfTime,
+      incidents: incidents.length,
+      byOutcome,
+      byPharmacy,
+      byDay,
+    };
   }, [scoped, now]);
+
 
   return (
     <section className="space-y-4">
