@@ -18,20 +18,19 @@ export const PHARMACY_SHORT: Record<Pharmacy, string> = {
 export const WARN_MINUTES = 20;
 export const LATE_MINUTES = 30;
 
-export type Outcome = "entregado" | "retirado" | "sin_respuesta" | "cancelado";
+export type Outcome =
+  | "entregado"
+  | "retirado"
+  | "sin_respuesta"
+  | "cancelado"
+  | "otro";
 
 export const OUTCOME_LABELS: Record<Outcome, string> = {
   entregado: "Medicamento entregado",
   retirado: "Paciente se retiró",
   sin_respuesta: "No respondió al llamado",
   cancelado: "Atención cancelada",
-};
-
-export const OUTCOME_ICONS: Record<Outcome, string> = {
-  entregado: "✅",
-  retirado: "🚶",
-  sin_respuesta: "📢",
-  cancelado: "❌",
+  otro: "Otro motivo",
 };
 
 export const OUTCOME_ORDER: Outcome[] = [
@@ -39,6 +38,7 @@ export const OUTCOME_ORDER: Outcome[] = [
   "retirado",
   "sin_respuesta",
   "cancelado",
+  "otro",
 ];
 
 export type Delivery = {
