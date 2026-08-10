@@ -13,12 +13,16 @@ import { RangeFilter } from "@/components/RangeFilter";
 import { defaultRange, filterByRange, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
+  OUTCOME_ICONS,
+  OUTCOME_LABELS,
   PHARMACY_LABELS,
   PHARMACY_SHORT,
   formatClock,
   formatTime,
+  isDelivered,
   statusFor,
   type Delivery,
+  type Outcome,
   type Pharmacy,
 } from "@/lib/deliveries";
 
@@ -26,6 +30,8 @@ const toneFor = (mins: number) => {
   const st = statusFor(mins);
   return st === "late" ? "text-late" : st === "warn" ? "text-warn" : "text-ok";
 };
+
+const outcomeOf = (r: Delivery): Outcome => r.outcome ?? "entregado";
 
 async function exportToExcel(rows: Delivery[]) {
   const XLSX = await import("xlsx");
@@ -35,9 +41,14 @@ async function exportToExcel(rows: Delivery[]) {
     Farmacia: PHARMACY_LABELS[r.pharmacy],
     Fecha: new Date(r.started_at).toLocaleDateString("es-SV"),
     Ingreso: formatTime(r.started_at),
-    Entrega: r.delivered_at ? formatTime(r.delivered_at) : "",
+    Cierre: r.delivered_at ? formatTime(r.delivered_at) : "",
     "Tiempo total (min)": r.total_minutes ?? "",
-    Estado: (r.total_minutes ?? 0) >= LATE_MINUTES ? "Fuera de tiempo" : "En tiempo",
+    "Motivo de cierre": OUTCOME_LABELS[outcomeOf(r)],
+    Estado: !isDelivered(r)
+      ? "Incidencia"
+      : (r.total_minutes ?? 0) >= LATE_MINUTES
+        ? "Fuera de tiempo"
+        : "En tiempo",
     Observaciones: r.observations ?? "",
   }));
   const sheet = XLSX.utils.json_to_sheet(data);
@@ -49,6 +60,7 @@ async function exportToExcel(rows: Delivery[]) {
     { wch: 10 },
     { wch: 10 },
     { wch: 18 },
+    { wch: 24 },
     { wch: 16 },
     { wch: 40 },
   ];
@@ -57,6 +69,7 @@ async function exportToExcel(rows: Delivery[]) {
   const stamp = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(book, `historial-entregas-${stamp}.xlsx`);
 }
+
 
 export function HistoryTable({
   rows,
