@@ -97,7 +97,7 @@ export async function fetchDeliveries(): Promise<Delivery[]> {
   const { data, error } = await supabase
     .from("deliveries")
     .select(
-      "id, ticket, patient_name, pharmacy, started_at, delivered_at, total_minutes, observations",
+      "id, ticket, patient_name, pharmacy, started_at, delivered_at, total_minutes, observations, outcome",
     )
     .order("started_at", { ascending: false })
     .limit(500);
@@ -120,8 +120,8 @@ export async function startWait(input: {
   if (error) throw error;
 }
 
-
-export async function markDelivered(d: Delivery) {
+/** Cierra la atención registrando el motivo. El tiempo total se guarda siempre. */
+export async function closeDelivery(d: Delivery, outcome: Outcome) {
   const now = new Date();
   const minutes = (now.getTime() - new Date(d.started_at).getTime()) / 60000;
   const { error } = await supabase
@@ -129,7 +129,9 @@ export async function markDelivered(d: Delivery) {
     .update({
       delivered_at: now.toISOString(),
       total_minutes: Math.round(minutes * 100) / 100,
+      outcome,
     })
     .eq("id", d.id);
   if (error) throw error;
 }
+
