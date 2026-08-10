@@ -3,12 +3,18 @@ import { RangeFilter } from "@/components/RangeFilter";
 import { defaultRange, filterByRange, RANGE_LABELS, type RangeValue } from "@/lib/range";
 import {
   LATE_MINUTES,
+  OUTCOME_ICONS,
+  OUTCOME_LABELS,
+  OUTCOME_ORDER,
   PHARMACY_LABELS,
   elapsedMinutes,
   formatClock,
+  isDelivered,
+  isIncident,
   type Delivery,
   type Pharmacy,
 } from "@/lib/deliveries";
+
 
 
 function Metric({
