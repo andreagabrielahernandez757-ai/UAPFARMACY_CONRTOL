@@ -61,7 +61,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      delivery_outcome: "entregado" | "retirado" | "sin_respuesta" | "cancelado"
+      delivery_outcome:
+        | "entregado"
+        | "retirado"
+        | "sin_respuesta"
+        | "cancelado"
+        | "otro"
       pharmacy: "comunes" | "especializada" | "central"
     }
     CompositeTypes: {
@@ -190,7 +195,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      delivery_outcome: ["entregado", "retirado", "sin_respuesta", "cancelado"],
+      delivery_outcome: [
+        "entregado",
+        "retirado",
+        "sin_respuesta",
+        "cancelado",
+        "otro",
+      ],
       pharmacy: ["comunes", "especializada", "central"],
     },
   },

@@ -1,0 +1,1 @@
+ALTER TYPE public.delivery_outcome ADD VALUE IF NOT EXISTS 'otro';
