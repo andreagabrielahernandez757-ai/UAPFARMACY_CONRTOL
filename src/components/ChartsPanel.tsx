@@ -82,6 +82,11 @@ function ChartCard({
           {children as React.ReactElement}
         </ResponsiveContainer>
       </div>
+      {note ? (
+        <p className="mt-3 rounded-md bg-muted/60 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+          {note}
+        </p>
+      ) : null}
     </div>
   );
 }
