@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { RegisterForm } from "@/components/RegisterForm";
 import { LiveBoard } from "@/components/LiveBoard";
 import { StatsPanel } from "@/components/StatsPanel";
+import { ChartsPanel } from "@/components/ChartsPanel";
 import { useClock, useDeliveries, useTicker } from "@/hooks/use-board";
 
 export const Route = createFileRoute("/_gated/")({
