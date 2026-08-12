@@ -115,6 +115,28 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
       }));
   }, [delivered, now]);
 
+  /** Picos relevantes: horas >= 20% sobre el promedio general del rango (mínimo 2 casos) */
+  const hourPeaks = useMemo(() => {
+    if (byHour.length < 2) return { mean: 0, threshold: 0, peaks: [] as typeof byHour };
+    const mean = avg(byHour.map((b) => b.minutos));
+    const threshold = Math.max(mean * 1.2, mean + 2);
+    const peaks = byHour.filter((b) => b.minutos >= threshold && b.casos >= 2);
+    return { mean: round1(mean), threshold: round1(threshold), peaks };
+  }, [byHour]);
+
+  const peakHours = useMemo(
+    () => new Set(hourPeaks.peaks.map((p) => p.hora)),
+    [hourPeaks],
+  );
+
+  const worstHour = useMemo(
+    () =>
+      byHour.length
+        ? byHour.reduce((a, b) => (b.minutos > a.minutos ? b : a))
+        : null,
+    [byHour],
+  );
+
   const byPharmacy = useMemo(
     () =>
       (Object.keys(PHARMACY_LABELS) as Pharmacy[]).map((p) => {
