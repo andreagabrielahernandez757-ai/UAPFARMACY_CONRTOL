@@ -4,8 +4,10 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Label,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -57,10 +59,12 @@ function tooltipStyle() {
 function ChartCard({
   title,
   subtitle,
+  note,
   children,
 }: {
   title: string;
   subtitle?: string;
+  note?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -78,6 +82,11 @@ function ChartCard({
           {children as React.ReactElement}
         </ResponsiveContainer>
       </div>
+      {note ? (
+        <p className="mt-3 rounded-md bg-muted/60 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+          {note}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -112,6 +121,28 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
         casos: xs.length,
       }));
   }, [delivered, now]);
+
+  /** Picos relevantes: horas >= 20% sobre el promedio general del rango (mínimo 2 casos) */
+  const hourPeaks = useMemo(() => {
+    if (byHour.length < 2) return { mean: 0, threshold: 0, peaks: [] as typeof byHour };
+    const mean = avg(byHour.map((b) => b.minutos));
+    const threshold = Math.max(mean * 1.2, mean + 2);
+    const peaks = byHour.filter((b) => b.minutos >= threshold && b.casos >= 2);
+    return { mean: round1(mean), threshold: round1(threshold), peaks };
+  }, [byHour]);
+
+  const peakHours = useMemo(
+    () => new Set(hourPeaks.peaks.map((p) => p.hora)),
+    [hourPeaks],
+  );
+
+  const worstHour = useMemo(
+    () =>
+      byHour.length
+        ? byHour.reduce((a, b) => (b.minutos > a.minutos ? b : a))
+        : null,
+    [byHour],
+  );
 
   const byPharmacy = useMemo(
     () =>
@@ -205,38 +236,158 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
       ) : null}
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Tiempo promedio por hora" subtitle="Minutos por hora de ingreso">
-          <LineChart data={byHour} margin={{ top: 4, right: 12, bottom: 0, left: -16 }}>
+        <ChartCard
+          title="Tiempo promedio por hora"
+          subtitle="Minutos promedio (min) por hora de ingreso"
+          note={
+            byHour.length < 2 ? null : hourPeaks.peaks.length ? (
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ background: LATE }}
+                />
+                <strong className="font-bold text-foreground">
+                  Pico{hourPeaks.peaks.length > 1 ? "s" : ""} detectado
+                  {hourPeaks.peaks.length > 1 ? "s" : ""}:
+                </strong>
+                {hourPeaks.peaks
+                  .map((p) => `${p.hora} (${p.minutos} min · ${p.casos} casos)`)
+                  .join(" · ")}
+                <span>— promedio del rango {hourPeaks.mean} min</span>
+              </span>
+            ) : (
+              <span>
+                Sin picos relevantes: todas las horas están cerca del promedio (
+                {hourPeaks.mean} min).
+              </span>
+            )
+          }
+        >
+          <LineChart data={byHour} margin={{ top: 10, right: 16, bottom: 18, left: 4 }}>
             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="hora" {...axisProps} />
-            <YAxis {...axisProps} />
-            <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v} min`, "Promedio"]} />
+            <XAxis dataKey="hora" {...axisProps}>
+              <Label
+                value="Hora de ingreso (HH:00)"
+                position="insideBottom"
+                offset={-12}
+                fill="var(--muted-foreground)"
+                fontSize={11}
+              />
+            </XAxis>
+            <YAxis {...axisProps} unit=" min" width={58}>
+              <Label
+                value="Minutos"
+                angle={-90}
+                position="insideLeft"
+                fill="var(--muted-foreground)"
+                fontSize={11}
+                style={{ textAnchor: "middle" }}
+              />
+            </YAxis>
+            <Tooltip
+              {...tooltipStyle()}
+              formatter={(v: number, _n, item: { payload?: { hora?: string } }) => [
+                `${v} min${peakHours.has(item?.payload?.hora ?? "") ? " · pico" : ""}`,
+                "Promedio",
+              ]}
+            />
+            {hourPeaks.peaks.length ? (
+              <ReferenceLine
+                y={hourPeaks.threshold}
+                stroke={LATE}
+                strokeDasharray="4 4"
+                strokeWidth={1.5}
+              >
+                <Label
+                  value={`Umbral de pico ${hourPeaks.threshold} min`}
+                  position="insideTopRight"
+                  fill={LATE}
+                  fontSize={10}
+                />
+              </ReferenceLine>
+            ) : null}
             <Line
               type="monotone"
               dataKey="minutos"
               stroke={PRIMARY}
               strokeWidth={2.5}
-              dot={{ r: 3, fill: PRIMARY }}
+              dot={(props: {
+                cx?: number;
+                cy?: number;
+                key?: string;
+                payload?: { hora?: string };
+              }) => {
+                const peak = peakHours.has(props.payload?.hora ?? "");
+                return (
+                  <circle
+                    key={props.key ?? props.payload?.hora}
+                    cx={props.cx}
+                    cy={props.cy}
+                    r={peak ? 6 : 3}
+                    fill={peak ? LATE : PRIMARY}
+                    stroke={peak ? LATE : "none"}
+                    strokeWidth={peak ? 6 : 0}
+                    strokeOpacity={peak ? 0.22 : 0}
+                  />
+                );
+              }}
             />
           </LineChart>
         </ChartCard>
 
-        <ChartCard title="Tiempo promedio por farmacia" subtitle="Minutos promedio de entrega">
-          <BarChart data={byPharmacy} margin={{ top: 4, right: 12, bottom: 0, left: -16 }}>
+        <ChartCard
+          title="Tiempo promedio por farmacia"
+          subtitle="Minutos promedio (min) de entrega"
+        >
+          <BarChart data={byPharmacy} margin={{ top: 10, right: 16, bottom: 18, left: 4 }}>
             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="farmacia" {...axisProps} interval={0} />
-            <YAxis {...axisProps} />
+            <XAxis dataKey="farmacia" {...axisProps} interval={0}>
+              <Label
+                value="Farmacia"
+                position="insideBottom"
+                offset={-12}
+                fill="var(--muted-foreground)"
+                fontSize={11}
+              />
+            </XAxis>
+            <YAxis {...axisProps} unit=" min" width={58}>
+              <Label
+                value="Minutos"
+                angle={-90}
+                position="insideLeft"
+                fill="var(--muted-foreground)"
+                fontSize={11}
+                style={{ textAnchor: "middle" }}
+              />
+            </YAxis>
             <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v} min`, "Promedio"]} />
             <Bar dataKey="minutos" radius={[6, 6, 0, 0]} fill={PRIMARY} />
           </BarChart>
         </ChartCard>
 
-        <ChartCard title="Pacientes por estado" subtitle="Semáforo de tiempos de espera">
-          <BarChart data={byStatus} margin={{ top: 4, right: 12, bottom: 0, left: -16 }}>
+        <ChartCard title="Pacientes por estado" subtitle="Cantidad de pacientes por semáforo">
+          <BarChart data={byStatus} margin={{ top: 10, right: 16, bottom: 18, left: 4 }}>
             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="estado" {...axisProps} interval={0} />
-            <YAxis {...axisProps} allowDecimals={false} />
-            <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v}`, "Pacientes"]} />
+            <XAxis dataKey="estado" {...axisProps} interval={0}>
+              <Label
+                value={`Estado (verde <${WARN_MINUTES} min · amarillo ${WARN_MINUTES}-${LATE_MINUTES} min · rojo >${LATE_MINUTES} min)`}
+                position="insideBottom"
+                offset={-12}
+                fill="var(--muted-foreground)"
+                fontSize={11}
+              />
+            </XAxis>
+            <YAxis {...axisProps} allowDecimals={false} width={58}>
+              <Label
+                value="Pacientes"
+                angle={-90}
+                position="insideLeft"
+                fill="var(--muted-foreground)"
+                fontSize={11}
+                style={{ textAnchor: "middle" }}
+              />
+            </YAxis>
+            <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v} pacientes`, "Total"]} />
             <Bar dataKey="pacientes" radius={[6, 6, 0, 0]}>
               {byStatus.map((s) => (
                 <Cell key={s.estado} fill={s.fill} />
@@ -245,11 +396,28 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
           </BarChart>
         </ChartCard>
 
-        <ChartCard title="Tendencia diaria" subtitle="Tiempo promedio por día">
-          <LineChart data={byDay} margin={{ top: 4, right: 12, bottom: 0, left: -16 }}>
+        <ChartCard title="Tendencia diaria" subtitle="Minutos promedio (min) por día">
+          <LineChart data={byDay} margin={{ top: 10, right: 16, bottom: 18, left: 4 }}>
             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="dia" {...axisProps} />
-            <YAxis {...axisProps} />
+            <XAxis dataKey="dia" {...axisProps}>
+              <Label
+                value="Día (dd/mm)"
+                position="insideBottom"
+                offset={-12}
+                fill="var(--muted-foreground)"
+                fontSize={11}
+              />
+            </XAxis>
+            <YAxis {...axisProps} unit=" min" width={58}>
+              <Label
+                value="Minutos"
+                angle={-90}
+                position="insideLeft"
+                fill="var(--muted-foreground)"
+                fontSize={11}
+                style={{ textAnchor: "middle" }}
+              />
+            </YAxis>
             <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v} min`, "Promedio"]} />
             <Line
               type="monotone"
