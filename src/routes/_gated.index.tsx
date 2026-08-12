@@ -44,6 +44,7 @@ function Central() {
         isError={isError}
       />
       {mounted ? <StatsPanel rows={rows} now={now} /> : null}
+      {mounted ? <ChartsPanel rows={rows} now={now} /> : null}
     </>
   );
 }
