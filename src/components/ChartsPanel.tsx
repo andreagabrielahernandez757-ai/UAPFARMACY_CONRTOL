@@ -59,10 +59,12 @@ function tooltipStyle() {
 function ChartCard({
   title,
   subtitle,
+  note,
   children,
 }: {
   title: string;
   subtitle?: string;
+  note?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
