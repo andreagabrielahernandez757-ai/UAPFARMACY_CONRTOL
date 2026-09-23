@@ -3,7 +3,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Label,
   Line,
   LineChart,
@@ -23,9 +22,7 @@ import {
 } from "@/components/ui/select";
 import { defaultRange, filterByRange, RANGE_LABELS, type RangeValue } from "@/lib/range";
 import {
-  LATE_MINUTES,
   PHARMACY_LABELS,
-  WARN_MINUTES,
   elapsedMinutes,
   isDelivered,
   type Delivery,
@@ -33,7 +30,6 @@ import {
 } from "@/lib/deliveries";
 
 const OK = "var(--ok)";
-const WARN = "var(--warn)";
 const LATE = "var(--late)";
 const PRIMARY = "var(--primary)";
 
@@ -157,27 +153,6 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
       }),
     [delivered],
   );
-
-  const byStatus = useMemo(() => {
-    const mins = scoped.map((d) => (d.delivered_at ? (d.total_minutes ?? 0) : elapsedMinutes(d, now)));
-    return [
-      {
-        estado: "Dentro de tiempo",
-        pacientes: mins.filter((m) => m < WARN_MINUTES).length,
-        fill: OK,
-      },
-      {
-        estado: "Próximo a vencer",
-        pacientes: mins.filter((m) => m >= WARN_MINUTES && m < LATE_MINUTES).length,
-        fill: WARN,
-      },
-      {
-        estado: "Fuera de tiempo",
-        pacientes: mins.filter((m) => m >= LATE_MINUTES).length,
-        fill: LATE,
-      },
-    ];
-  }, [scoped, now]);
 
   const byDay = useMemo(() => {
     const buckets = new Map<number, number[]>();
@@ -362,37 +337,6 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
             </YAxis>
             <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v} min`, "Promedio"]} />
             <Bar dataKey="minutos" radius={[6, 6, 0, 0]} fill={PRIMARY} />
-          </BarChart>
-        </ChartCard>
-
-        <ChartCard title="Pacientes por estado" subtitle="Cantidad de pacientes por semáforo">
-          <BarChart data={byStatus} margin={{ top: 10, right: 16, bottom: 18, left: 4 }}>
-            <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="estado" {...axisProps} interval={0}>
-              <Label
-                value={`Estado (verde <${WARN_MINUTES} min · amarillo ${WARN_MINUTES}-${LATE_MINUTES} min · rojo >${LATE_MINUTES} min)`}
-                position="insideBottom"
-                offset={-12}
-                fill="var(--muted-foreground)"
-                fontSize={11}
-              />
-            </XAxis>
-            <YAxis {...axisProps} allowDecimals={false} width={58}>
-              <Label
-                value="Pacientes"
-                angle={-90}
-                position="insideLeft"
-                fill="var(--muted-foreground)"
-                fontSize={11}
-                style={{ textAnchor: "middle" }}
-              />
-            </YAxis>
-            <Tooltip {...tooltipStyle()} formatter={(v: number) => [`${v} pacientes`, "Total"]} />
-            <Bar dataKey="pacientes" radius={[6, 6, 0, 0]}>
-              {byStatus.map((s) => (
-                <Cell key={s.estado} fill={s.fill} />
-              ))}
-            </Bar>
           </BarChart>
         </ChartCard>
 

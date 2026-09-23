@@ -79,7 +79,7 @@ function FarmaciaPage() {
         isError={isError}
       />
 
-      {mounted ? <StatsPanel rows={mine} now={now} /> : null}
+      {mounted ? <StatsPanel rows={mine} now={now} lockedPharmacy={pharmacy} /> : null}
 
       <HistoryTable rows={mine} lockedPharmacy={pharmacy} />
     </>
