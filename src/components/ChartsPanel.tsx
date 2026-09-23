@@ -3,7 +3,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Label,
   Line,
   LineChart,
@@ -23,9 +22,7 @@ import {
 } from "@/components/ui/select";
 import { defaultRange, filterByRange, RANGE_LABELS, type RangeValue } from "@/lib/range";
 import {
-  LATE_MINUTES,
   PHARMACY_LABELS,
-  WARN_MINUTES,
   elapsedMinutes,
   isDelivered,
   type Delivery,
@@ -33,7 +30,6 @@ import {
 } from "@/lib/deliveries";
 
 const OK = "var(--ok)";
-const WARN = "var(--warn)";
 const LATE = "var(--late)";
 const PRIMARY = "var(--primary)";
 
