@@ -158,27 +158,6 @@ export function ChartsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
     [delivered],
   );
 
-  const byStatus = useMemo(() => {
-    const mins = scoped.map((d) => (d.delivered_at ? (d.total_minutes ?? 0) : elapsedMinutes(d, now)));
-    return [
-      {
-        estado: "Dentro de tiempo",
-        pacientes: mins.filter((m) => m < WARN_MINUTES).length,
-        fill: OK,
-      },
-      {
-        estado: "Próximo a vencer",
-        pacientes: mins.filter((m) => m >= WARN_MINUTES && m < LATE_MINUTES).length,
-        fill: WARN,
-      },
-      {
-        estado: "Fuera de tiempo",
-        pacientes: mins.filter((m) => m >= LATE_MINUTES).length,
-        fill: LATE,
-      },
-    ];
-  }, [scoped, now]);
-
   const byDay = useMemo(() => {
     const buckets = new Map<number, number[]>();
     for (const d of delivered) {

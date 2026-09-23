@@ -43,7 +43,16 @@ function Metric({
   );
 }
 
-export function StatsPanel({ rows, now }: { rows: Delivery[]; now: number }) {
+export function StatsPanel({
+  rows,
+  now,
+  lockedPharmacy,
+}: {
+  rows: Delivery[];
+  now: number;
+  /** Si se indica, el panel está acotado a una farmacia y se oculta el desglose por farmacia */
+  lockedPharmacy?: Pharmacy;
+}) {
   const [range, setRange] = useState<RangeValue>(defaultRange);
   const scoped = useMemo(() => filterByRange(rows, range, now), [rows, range, now]);
 
