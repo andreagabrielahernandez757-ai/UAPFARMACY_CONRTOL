@@ -159,32 +159,33 @@ export function StatsPanel({
 
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="board-panel p-4">
-          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
-            Por farmacia
-          </h3>
-          <ul className="mt-3 space-y-3">
-            {stats.byPharmacy.map((p) => (
-              <li
-                key={p.pharmacy}
-                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/50 pb-3 last:border-0 last:pb-0"
-              >
-                <span className="min-w-0 truncate text-lg font-semibold uppercase">
-                  {PHARMACY_LABELS[p.pharmacy]}
-                </span>
-                <span className="tabular shrink-0 text-sm text-muted-foreground">
-                  <span className="text-ok">{p.done}</span> entreg. ·{" "}
-                  <span className="text-warn">{p.waiting}</span> espera ·{" "}
-                  {formatClock(p.avg)} prom. · <span className="text-late">{p.late}</span> tarde ·{" "}
-                  <span className="text-warn">{p.incidents}</span> incid.
-                </span>
+        {lockedPharmacy ? null : (
+          <div className="board-panel p-4">
+            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Por farmacia
+            </h3>
+            <ul className="mt-3 space-y-3">
+              {stats.byPharmacy.map((p) => (
+                <li
+                  key={p.pharmacy}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/50 pb-3 last:border-0 last:pb-0"
+                >
+                  <span className="min-w-0 truncate text-lg font-semibold uppercase">
+                    {PHARMACY_LABELS[p.pharmacy]}
+                  </span>
+                  <span className="tabular shrink-0 text-sm text-muted-foreground">
+                    <span className="text-ok">{p.done}</span> entreg. ·{" "}
+                    <span className="text-warn">{p.waiting}</span> espera ·{" "}
+                    {formatClock(p.avg)} prom. · <span className="text-late">{p.late}</span> tarde ·{" "}
+                    <span className="text-warn">{p.incidents}</span> incid.
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="board-panel p-4">
+        <div className={`board-panel p-4 ${lockedPharmacy ? "lg:col-span-2" : ""}`}>
           <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Por día
           </h3>
